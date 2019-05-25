@@ -8,42 +8,42 @@
 
 'use strict';
 
-const expect = require('chai');
-const { MongoClient, ObjectId } = require('mongodb');
+module.exports = function(app, db) {
+	app
+		.route('/api/issues/:project')
+		.get(function(req, res) {
+			const project = req.params.project;
+			console.log(project);
+		})
 
-module.exports = function(app) {
-  app.get('/api/test', res => res.json('test'));
+		.post(function(req, res, next) {
+			const timestamp = new Date();
+			const project = req.params.project;
+			const { created_by, issue_text, issue_title } = req.body;
+			const issue = {
+				created_on: timestamp,
+				updated_on: timestamp,
+				open: true,
+				...req.body
+			};
+			if (!created_by || !issue_text || !issue_title) {
+				return res.json({ error: 'You have not completed the form.' });
+			} else {
+				db.collection(project).insertOne(issue, (err, doc) => {
+					if (err) {
+						res.json({ msg: 'There was an error adding your issue', err });
+					} else {
+						res.json(issue);
+					}
+				});
+			}
+		})
 
-  app
-    .route('/api/issues/:project')
-    .get(function(req, res) {
-      const project = req.params.project;
-      console.log(req);
-    })
+		.put(function(req, res) {
+			const project = req.params.project;
+		})
 
-    .post(function(req, res, next) {
-      const project = req.params.project;
-      console.log(project);
-      db.collection('issues').insertOne(
-        {
-          test: 'test'
-        },
-        (err, doc) => {
-          if (err) {
-            res.json(err);
-          } else {
-            console.log(doc);
-            next(null, doc);
-          }
-        }
-      );
-    })
-
-    .put(function(req, res) {
-      const project = req.params.project;
-    })
-
-    .delete(function(req, res) {
-      const project = req.params.project;
-    });
+		.delete(function(req, res) {
+			const project = req.params.project;
+		});
 };

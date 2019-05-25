@@ -9,28 +9,28 @@
 'use strict';
 
 const expect = require('chai');
-const MongoClient = require('mongodb');
-const ObjectId = require('mongodb').ObjectID;
-
-const CONNECTION_STRING = process.env.DB; //MongoClient.connect(CONNECTION_STRING, function(err, db) {});
+const { MongoClient, ObjectId } = require('mongodb');
 
 module.exports = function(app) {
-	app
-		.route('/api/issues/:project')
+	MongoClient.connect(process.env.DB, (err, db) => {
+		// prettier-ignore
+		app.route('/api/issues/:project')
 
-		.get(function(req, res) {
-			var project = req.params.project;
-		})
+			.get(function(req, res) {
+				var project = req.params.project;
+				console.log(project)
+			})
 
-		.post(function(req, res) {
-			var project = req.params.project;
-		})
+			.post(function(req, res) {
+				var project = req.params.project;
+			})
 
-		.put(function(req, res) {
-			var project = req.params.project;
-		})
+			.put(function(req, res) {
+				var project = req.params.project;
+			})
 
-		.delete(function(req, res) {
-			var project = req.params.project;
-		});
+			.delete(function(req, res) {
+				var project = req.params.project;
+			});
+	});
 };

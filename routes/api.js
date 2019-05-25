@@ -12,25 +12,38 @@ const expect = require('chai');
 const { MongoClient, ObjectId } = require('mongodb');
 
 module.exports = function(app) {
-	MongoClient.connect(process.env.DB, (err, db) => {
-		// prettier-ignore
-		app.route('/api/issues/:project')
+  app.get('/api/test', res => res.json('test'));
 
-			.get(function(req, res) {
-				var project = req.params.project;
-				console.log(project)
-			})
+  app
+    .route('/api/issues/:project')
+    .get(function(req, res) {
+      const project = req.params.project;
+      console.log(req);
+    })
 
-			.post(function(req, res) {
-				var project = req.params.project;
-			})
+    .post(function(req, res, next) {
+      const project = req.params.project;
+      console.log(project);
+      db.collection('issues').insertOne(
+        {
+          test: 'test'
+        },
+        (err, doc) => {
+          if (err) {
+            res.json(err);
+          } else {
+            console.log(doc);
+            next(null, doc);
+          }
+        }
+      );
+    })
 
-			.put(function(req, res) {
-				var project = req.params.project;
-			})
+    .put(function(req, res) {
+      const project = req.params.project;
+    })
 
-			.delete(function(req, res) {
-				var project = req.params.project;
-			});
-	});
+    .delete(function(req, res) {
+      const project = req.params.project;
+    });
 };

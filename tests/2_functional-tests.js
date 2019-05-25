@@ -147,9 +147,32 @@ suite('Functional Tests', function() {
           });
       });
 
-      test('One filter', function(done) {});
+      test('One filter', function(done) {
+        chai
+          .request(server)
+          .get('/api/issues/test')
+          .query({ open: true })
+          .end(function(err, res) {
+            assert.equal(res.status, 200);
+            assert.isArray(res.body);
+            assert.equal(res.body[0].open, true);
+            done();
+          });
+      });
 
-      test('Multiple filters (test for multiple fields you know will be in the db for a return)', function(done) {});
+      test('Multiple filters (test for multiple fields you know will be in the db for a return)', function(done) {
+        chai
+          .request(server)
+          .get('/api/issues/test')
+          .query({ open: false, status_text: 'high priority' })
+          .end(function(err, res) {
+            assert.equal(res.status, 200);
+            assert.isArray(res.body);
+            assert.equal(res.body[0].open, false);
+            assert.equal(res.body[0].status_text, 'high priority');
+            done();
+          });
+      });
     }
   );
 

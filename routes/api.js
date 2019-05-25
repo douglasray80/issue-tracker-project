@@ -13,7 +13,13 @@ module.exports = function(app, db) {
     .route('/api/issues/:project')
     .get(function(req, res) {
       const project = req.params.project;
+
       console.log(project);
+      db.collection(project)
+        .find()
+        .toArray((err, items) => {
+          res.json(items);
+        });
     })
 
     .post(function(req, res, next) {
@@ -62,10 +68,10 @@ module.exports = function(app, db) {
       } else {
         db.collection(project).findOneAndUpdate(
           { _id },
-          { $set: { ...req.body } },
+          { $set: { ...req.body, updated_on: new Date() } },
           (err, doc) => {
             if (err) {
-              res.json(`Could not update ${_id}`);
+              res.json(`could not update ${_id}`);
             } else {
               res.send('successfully updated');
             }

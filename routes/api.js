@@ -16,13 +16,9 @@ module.exports = function(app, db) {
     .get(function(req, res) {
       const project = req.params.project;
       const queryParams = req.query;
-      db.collection(project)
-        .find(queryParams)
-        .toArray((err, items) => {
-          console.log(queryParams);
-          console.log(items);
-          res.json(items);
-        });
+      Issue.find({ project_name: project, ...queryParams }, (err, items) => {
+        res.json(items);
+      });
     })
 
     .post(function(req, res) {
@@ -57,9 +53,14 @@ module.exports = function(app, db) {
       if (!_id || Object.keys(other).length < 1) {
         res.send('no updated field sent');
       } else {
+        Object.keys(other).map(key =>
+          // if form field is an empty string, set to undefined
+          other[key] === '' ? (other[key] = undefined) : null
+        );
         Issue.findByIdAndUpdate(
           _id,
           { ...other, updated_on: new Date() },
+          { omitUndefined: true },
           (err, data) => {
             if (err) {
               res.send(`could not update ${_id}`);

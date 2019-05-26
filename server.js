@@ -5,7 +5,7 @@ const bodyParser = require('body-parser');
 const { expect } = require('chai');
 const cors = require('cors');
 const helmet = require('helmet');
-const { MongoClient, ObjectId } = require('mongodb');
+const mongoose = require('mongoose');
 
 const apiRoutes = require('./routes/api.js');
 const fccTestingRoutes = require('./routes/fcctesting.js');
@@ -22,52 +22,57 @@ app.use(cors({ origin: '*' })); //For FCC testing purposes only
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-MongoClient.connect(process.env.MONGO_URI, (err, db) => {
-  if (err) {
-    console.log('Database error: ' + err);
-  } else {
-    console.log('Database loaded...');
-    //Sample front-end
-    app.route('/:project/').get(function(req, res) {
-      res.sendFile(process.cwd() + '/views/issue.html');
-    });
+async function startServer() {
+  await mongoose
+    .connect(process.env.MONGO_URI, {
+      useNewUrlParser: true,
+      useCreateIndex: true
+    })
+    .then(() => console.log('Connected to database...'))
+    .catch(err =>
+      console.log('There was an error connecting to database: ' + err)
+    );
 
-    //Index page (static HTML)
-    app.route('/').get(function(req, res) {
-      res.sendFile(process.cwd() + '/views/index.html');
-    });
+  app.route('/:project/').get(function(req, res) {
+    res.sendFile(process.cwd() + '/views/issue.html');
+  });
 
-    //For FCC testing purposes
-    fccTestingRoutes(app);
+  //Index page (static HTML)
+  app.route('/').get(function(req, res) {
+    res.sendFile(process.cwd() + '/views/index.html');
+  });
 
-    //Routing for API
-    apiRoutes(app, db);
+  //For FCC testing purposes
+  fccTestingRoutes(app);
 
-    //404 Not Found Middleware
-    app.use(function(req, res, next) {
-      res
-        .status(404)
-        .type('text')
-        .send('Not Found');
-    });
+  //Routing for API
+  apiRoutes(app);
 
-    //Start our server and tests!
-    app.listen(process.env.PORT || 3000, function() {
-      console.log('Listening on port ' + process.env.PORT);
-      if (process.env.NODE_ENV === 'test') {
-        console.log('Running Tests...');
-        setTimeout(function() {
-          try {
-            runner.run();
-          } catch (e) {
-            var error = e;
-            console.log('Tests are not valid:');
-            console.log(error);
-          }
-        }, 3500);
-      }
-    });
-  }
-});
+  //404 Not Found Middleware
+  app.use(function(req, res, next) {
+    res
+      .status(404)
+      .type('text')
+      .send('Not Found');
+  });
+
+  app.listen(process.env.PORT || 3000, function() {
+    console.log('Listening on port ' + process.env.PORT);
+    if (process.env.NODE_ENV === 'test') {
+      console.log('Running Tests...');
+      setTimeout(function() {
+        try {
+          runner.run();
+        } catch (e) {
+          var error = e;
+          console.log('Tests are not valid:');
+          console.log(error);
+        }
+      }, 3500);
+    }
+  });
+}
+
+startServer();
 
 module.exports = app; //for testing

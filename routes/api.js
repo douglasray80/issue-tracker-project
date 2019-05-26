@@ -13,17 +13,17 @@ const Issue = require('../models/Issue');
 module.exports = function(app, db) {
   app
     .route('/api/issues/:project')
-    // .get(function(req, res) {
-    //   const project = req.params.project;
-    //   const queryParams = req.query;
-    //   db.collection(project)
-    //     .find(queryParams)
-    //     .toArray((err, items) => {
-    //       console.log(queryParams);
-    //       console.log(items);
-    //       res.json(items);
-    //     });
-    // })
+    .get(function(req, res) {
+      const project = req.params.project;
+      const queryParams = req.query;
+      db.collection(project)
+        .find(queryParams)
+        .toArray((err, items) => {
+          console.log(queryParams);
+          console.log(items);
+          res.json(items);
+        });
+    })
 
     .post(function(req, res) {
       const timestamp = new Date();
@@ -50,46 +50,28 @@ module.exports = function(app, db) {
           }
         });
       }
+    })
+
+    .put(function(req, res) {
+      const { _id, ...other } = req.body;
+      if (!_id || Object.keys(other).length < 1) {
+        res.send('no updated field sent');
+      } else {
+        Issue.findByIdAndUpdate(
+          _id,
+          { ...other, updated_on: new Date() },
+          (err, data) => {
+            if (err) {
+              res.send(`could not update ${_id}`);
+            } else {
+              res.send('successfully updated');
+            }
+          }
+        );
+      }
+    })
+
+    .delete(function(req, res) {
+      const project = req.params.project;
     });
-
-  // .put(function(req, res) {
-  //   const project = req.params.project;
-  // const {
-  //   _id,
-  //   issue_title,
-  //   issue_text,
-  //   created_by,
-  //   assigned_to,
-  //   status_text,
-  //   open
-  // } = req.body;
-  // if (
-  //   !issue_title &&
-  //   !issue_text &&
-  //   !created_by &&
-  //   !assigned_to &&
-  //   !status_text &&
-  //   typeof open === 'undefined'
-  // ) {
-  //   console.log(req.body._id);
-  //   if (!req.body._id) {
-  //     res.send('no updated field sent');
-  //   } else {
-  //     db.collection(project).findOneAndUpdate(
-  //       { _id: req.body._id },
-  //       { $set: { ...req.body, updated_on: new Date() } },
-  //       (err, doc) => {
-  //         if (err) {
-  //           res.json(`could not update ${_id}`);
-  //         } else {
-  //           res.send('successfully updated');
-  //         }
-  //       }
-  //     );
-  //   }
-  // })
-
-  // .delete(function(req, res) {
-  //   const project = req.params.project;
-  // });
 };

@@ -7,10 +7,9 @@
  */
 
 'use strict';
-// const mongoose = require('mongoose');
 const Issue = require('../models/Issue');
 
-module.exports = function(app, db) {
+module.exports = function(app) {
   app
     .route('/api/issues/:project')
     .get(function(req, res) {
@@ -74,5 +73,17 @@ module.exports = function(app, db) {
 
     .delete(function(req, res) {
       const project = req.params.project;
+      const { _id } = req.body;
+      if (!_id) {
+        res.send('_id error');
+      } else {
+        Issue.findByIdAndDelete(_id, (err, data) => {
+          if (err) {
+            res.send(`could not delete ${_id}`);
+          } else {
+            res.send(`deleted ${_id}`);
+          }
+        });
+      }
     });
 };

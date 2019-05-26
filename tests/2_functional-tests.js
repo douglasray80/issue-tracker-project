@@ -80,7 +80,7 @@ suite('Functional Tests', function() {
       chai
         .request(server)
         .put('/api/issues/test')
-        .send({ _id: '5ceaa24e8e186c4d138b43ed' })
+        .send({ _id: '5ceaaa4c5d1c9a56256dd14e' })
         .end(function(err, res) {
           assert.equal(res.status, 200);
           assert.equal(res.type, 'text/html', 'Response should be text');
@@ -94,7 +94,7 @@ suite('Functional Tests', function() {
         .request(server)
         .put('/api/issues/test')
         .send({
-          _id: '5ceaa24e8e186c4d138b43ed',
+          _id: '5ceaaa4c5d1c9a56256dd14e',
           assigned_to: 'Frodo'
         })
         .end(function(err, res) {
@@ -110,7 +110,7 @@ suite('Functional Tests', function() {
         .request(server)
         .put('/api/issues/test')
         .send({
-          _id: '5ceaa24e8e186c4d138b43ed',
+          _id: '5ceaaa4c5d1c9a56256dd14e',
           issue_title: 'new title',
           issue_text: 'new issue text',
           status_text: 'high priority'
@@ -124,62 +124,84 @@ suite('Functional Tests', function() {
     });
   });
 
-  // suite(
-  //   'GET /api/issues/{project} => Array of objects with issue data',
-  //   function() {
-  //     test('No filter', function(done) {
-  //       chai
-  //         .request(server)
-  //         .get('/api/issues/test')
-  //         .query({})
-  //         .end(function(err, res) {
-  //           assert.equal(res.status, 200);
-  //           assert.isArray(res.body);
-  //           assert.property(res.body[0], 'issue_title');
-  //           assert.property(res.body[0], 'issue_text');
-  //           assert.property(res.body[0], 'created_on');
-  //           assert.property(res.body[0], 'updated_on');
-  //           assert.property(res.body[0], 'created_by');
-  //           assert.property(res.body[0], 'assigned_to');
-  //           assert.property(res.body[0], 'open');
-  //           assert.property(res.body[0], 'status_text');
-  //           assert.property(res.body[0], '_id');
-  //           done();
-  //         });
-  //     });
+  suite(
+    'GET /api/issues/{project} => Array of objects with issue data',
+    function() {
+      test('No filter', function(done) {
+        chai
+          .request(server)
+          .get('/api/issues/test')
+          .query({})
+          .end(function(err, res) {
+            assert.equal(res.status, 200);
+            assert.isArray(res.body);
+            assert.property(res.body[0], 'issue_title');
+            assert.property(res.body[0], 'issue_text');
+            assert.property(res.body[0], 'created_on');
+            assert.property(res.body[0], 'updated_on');
+            assert.property(res.body[0], 'created_by');
+            assert.property(res.body[0], 'assigned_to');
+            assert.property(res.body[0], 'open');
+            assert.property(res.body[0], 'status_text');
+            assert.property(res.body[0], '_id');
+            done();
+          });
+      });
 
-  //     test('One filter', function(done) {
-  //       chai
-  //         .request(server)
-  //         .get('/api/issues/test')
-  //         .query({ assigned_to: 'Frodo' })
-  //         .end(function(err, res) {
-  //           assert.equal(res.status, 200);
-  //           assert.isArray(res.body);
-  //           assert.equal(res.body[0].assigned_to, 'Frodo');
-  //           done();
-  //         });
-  //     });
+      test('One filter', function(done) {
+        chai
+          .request(server)
+          .get('/api/issues/test')
+          .query({ assigned_to: 'Frodo' })
+          .end(function(err, res) {
+            assert.equal(res.status, 200);
+            assert.isArray(res.body);
+            assert.equal(res.body[0].assigned_to, 'Frodo');
+            done();
+          });
+      });
 
-  //     test('Multiple filters (test for multiple fields you know will be in the db for a return)', function(done) {
-  //       chai
-  //         .request(server)
-  //         .get('/api/issues/test')
-  //         .query({ assigned_to: 'Frodo', status_text: 'high priority' })
-  //         .end(function(err, res) {
-  //           assert.equal(res.status, 200);
-  //           assert.isArray(res.body);
-  //           assert.equal(res.body[0].assigned_to, 'Frodo');
-  //           assert.equal(res.body[0].status_text, 'high priority');
-  //           done();
-  //         });
-  //     });
-  // }
-  // );
+      test('Multiple filters (test for multiple fields you know will be in the db for a return)', function(done) {
+        chai
+          .request(server)
+          .get('/api/issues/test')
+          .query({ assigned_to: 'Frodo', status_text: 'high priority' })
+          .end(function(err, res) {
+            assert.equal(res.status, 200);
+            assert.isArray(res.body);
+            assert.equal(res.body[0].assigned_to, 'Frodo');
+            assert.equal(res.body[0].status_text, 'high priority');
+            done();
+          });
+      });
+    }
+  );
 
-  // suite('DELETE /api/issues/{project} => text', function() {
-  //   test('No _id', function(done) {});
+  suite('DELETE /api/issues/{project} => text', function() {
+    test('No _id', function(done) {
+      chai
+        .request(server)
+        .delete('/api/issues/test')
+        .send({})
+        .end(function(err, res) {
+          assert.equal(res.status, 200);
+          assert.equal(res.type, 'text/html', 'Response should be text');
+          assert.equal(res.text, '_id error');
+          done();
+        });
+    });
 
-  //   test('Valid _id', function(done) {});
-  // });
+    test('Valid _id', function(done) {
+      chai
+        .request(server)
+        .delete('/api/issues/test')
+        .send({ _id: '5ceaaccde3b3bc17ebad46a2' })
+        .end(function(err, res) {
+          assert.equal(res.status, 200);
+          assert.equal(res.type, 'text/html', 'Response should be text');
+          assert.equal(res.text, 'deleted 5ceaaccde3b3bc17ebad46a2');
+          done();
+        });
+    });
+  });
 });
